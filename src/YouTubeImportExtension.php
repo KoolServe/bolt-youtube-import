@@ -18,8 +18,9 @@ class YouTubeImportExtension extends SimpleExtension
 {
     protected function registerNutCommands(\Pimple $container)
     {
+        $config = $this->getConfig();
         return [
-            new Import($container, $this->getConfig()),
+            new Nut\Import($container, $config),
         ];
     }
 }
