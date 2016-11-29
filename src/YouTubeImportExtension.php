@@ -16,5 +16,10 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class YouTubeImportExtension extends SimpleExtension
 {
-
+    protected function registerNutCommands(\Pimple $container)
+    {
+        return [
+            new Import($container, $this->getConfig()),
+        ];
+    }
 }
