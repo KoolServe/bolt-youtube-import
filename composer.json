@@ -1,0 +1,37 @@
+{
+    "name": "koolserve/youtube-import",
+    "description": "",
+    "type": "bolt-extension",
+    "keywords": [
+    ],
+    "require": {
+        "bolt/bolt": "^3.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.7"
+    },
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Chris Hilsdon",
+            "email": "chris@koolserve.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Bolt\\Extension\\Koolserve\\YouTubeImport\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bolt\\Extension\\Koolserve\\YouTubeImport\\Tests\\": "tests",
+            "Bolt\\Tests\\": "vendor/bolt/bolt/tests/phpunit/unit/"
+        }
+    },
+    "extra": {
+        "bolt-assets": "web",
+        "bolt-class": "Bolt\\Extension\\Koolserve\\YouTubeImport\\YouTubeImportExtension"
+    }
+}
