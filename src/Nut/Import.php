@@ -38,12 +38,21 @@ class Import extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $repo = $this->app['storage'];
-        $pages = $repo->getRepository('tracks');
+        $em = $this->app['storage'];
+        $repo = $em->getRepository('tracks');
+
+        //Delete the first record. Useful when testing
+        // $find = $repo->findOneBy(['id' => 1]);
+        // if($find) {
+        //     $result = $repo->delete($find);
+        // }
 
         $key = $this->config['youtubeKey'];
         $playlistId = $this->config['playlistId'];
         $url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&key=$key";
+
+        $uploadFolder = 'tracks/';
+        $uploadPath = $this->app['paths']["filespath"] . '/' . $uploadFolder;
 
         $client = new \GuzzleHttp\Client();
         $request = $client->request('GET', $url);
@@ -53,24 +62,26 @@ class Import extends Command
             $videoData = $video->snippet;
             $title = $videoData->title;
             $videoId = $videoData->resourceId->videoId;
-            //$thumbnail = $videoData->thumbnails->standard->url;
+            $thumbnail = $videoData->thumbnails->standard->url;
+            $thumbnailName = strtolower(str_replace(' ', '_', trim($title)));
 
-            //Save thumbnail - todo later
-            //$client = new \GuzzleHttp\Client();
-            //$request = $client->request('GET', $thumbnail, ['sink' => sys_get_temp_dir() . '_bolt_' . $videoId . '.jpg']);
-
-            $content = $pages->create(['contenttype' => 'tracks', 'status' => 'draft']);
+            //Save thumbnail
+            $client = new \GuzzleHttp\Client();
+            $request = $client->request('GET', $thumbnail, ['sink' => $uploadPath . $thumbnailName . '.jpg']);
+            $content = $repo->create(['contenttype' => 'tracks', 'status' => 'draft']);
             $data = [
                 "title" => $title,
-                "youtubelink" => 'https://youtu.be/' . $videoId
+                "youtubelink" => 'https://youtu.be/' . $videoId,
+                'image' => $uploadFolder . $thumbnailName . '.jpg'
             ];
 
             foreach ($data as $key => $value) {
+                //dump([$key => $value]);
                 $content->set($key, empty($value) ? null : $value);
             }
 
-            $repo->save($content);
-            $output->writeln('Imported "' . $title . '""');
+            $em->save($content);
+            $output->writeln('Imported "' . $title . '"');
         }
     }
 }
