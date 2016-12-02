@@ -34,15 +34,16 @@ class YouTube
 
         $client = $this->getClient();
         $request = $client->request('GET', $url);
-        return json_decode($request->getBody() . '');
+
+        return json_decode($request->getBody().'');
     }
 
     protected function fetchThumbnail($thumbnail, $thumbnailName)
     {
-        $uploadPath = $this->app['paths']["filespath"] . '/' . $this->getUploadPath();
+        $uploadPath = $this->app['paths']['filespath'].'/'.$this->getUploadPath();
         $client = $this->getClient();
         $request = $client->request('GET', $thumbnail, [
-            'sink' => $uploadPath . $thumbnailName . '.jpg'
+            'sink' => $uploadPath.$thumbnailName.'.jpg',
         ]);
     }
 
@@ -57,7 +58,7 @@ class YouTube
             $videoId = $videoData->resourceId->videoId;
 
             //Check that there isn't already a record for this video
-            $find = $repo->findOneBy(['youtubeid' => $videoId]);
+            $find = $repo->findOneBy([$this->getMappedKey('youtubeid') => $videoId]);
             if ($find) {
                 continue;
             }
@@ -71,26 +72,28 @@ class YouTube
                 }
             }
 
-            //Save thumbnail
+            //Save thumbnail to the uploads directory
             $thumbnailName = strtolower(str_replace(' ', '_', trim($title)));
             $thumbnailName = preg_replace('/[\s\W]+/', '', $thumbnailName);
             $this->fetchThumbnail($thumbnail, $thumbnailName);
 
+            //Create a new record in bolt
             $content = $repo->create([
                 'contenttype' => $this->getContenttype(),
-                'status' => 'draft'
+                'status' => 'draft',
             ]);
             $data = [
-                $this->getMappedKey("title") => $title,
-                $this->getMappedKey("youtubeid") => $videoId,
-                $this->getMappedKey('image') => $this->getUploadPath() . $thumbnailName . '.jpg'
+                $this->getMappedKey('title') => $title,
+                $this->getMappedKey('youtubeid') => $videoId,
+                $this->getMappedKey('image') => $this->getUploadPath().$thumbnailName.'.jpg',
             ];
 
             foreach ($data as $key => $value) {
                 //dump([$key => $value]);
                 $content->set($key, empty($value) ? null : $value);
             }
-            
+
+            //Save that record
             $em->save($content);
         }
     }

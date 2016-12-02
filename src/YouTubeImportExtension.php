@@ -2,12 +2,7 @@
 
 namespace Bolt\Extension\Koolserve\YouTubeImport;
 
-use Bolt\Application;
 use Bolt\Extension\SimpleExtension;
-
-use Silex\ControllerCollection;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * YouTubeImport extension class.
@@ -25,15 +20,16 @@ class YouTubeImportExtension extends SimpleExtension
             'mapping' => [
                 'title' => 'title',
                 'youtubeid' => 'youtubeid',
-                'image' => 'image'
+                'image' => 'image',
             ],
-            'uploadPath' => 'tracks/'
+            'uploadPath' => 'tracks/',
         ];
     }
 
     protected function registerNutCommands(\Pimple $container)
     {
         $config = $this->getConfig();
+
         return [
             new Nut\Import($container, $config),
         ];
