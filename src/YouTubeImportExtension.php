@@ -16,6 +16,21 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class YouTubeImportExtension extends SimpleExtension
 {
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefaultConfig()
+    {
+        return [
+            'mapping' => [
+                'title' => 'title',
+                'youtubeid' => 'youtubeid',
+                'image' => 'image'
+            ],
+            'uploadPath' => 'tracks/'
+        ];
+    }
+
     protected function registerNutCommands(\Pimple $container)
     {
         $config = $this->getConfig();

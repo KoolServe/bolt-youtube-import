@@ -1,2 +1,21 @@
+# Google APIs key. Learn more about this here - https://developers.google.com/youtube/v3/getting-started#before-you-start
 youtubeKey: ''
+
+# The playlist ID to import tracks from
 playlistId: ''
+
+# Contenttype to import the videos to
+contenttype: ''
+
+###
+# Default settings
+###
+#
+# Where to store video thumbnails within bolts upload directory
+# uploadPath: 'tracks/'
+#
+# Change mapping with your contenttype
+# mapping:
+#     title: title
+#     youtubeid: youtubeid
+#     image: image

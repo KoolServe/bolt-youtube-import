@@ -14,8 +14,6 @@ class YouTube
 
     protected $config;
 
-    private $uploadPath;
-
     public function __construct(Application $app, array $config)
     {
         $this->app = $app;
@@ -24,15 +22,8 @@ class YouTube
 
     public function run()
     {
-        $this->setup();
-
         $videos = $this->fetchVideos();
         $this->processVideos($videos);
-    }
-
-    protected function setup()
-    {
-        $this->uploadPath = 'tracks/';
     }
 
     protected function fetchVideos()
@@ -58,7 +49,7 @@ class YouTube
     protected function processVideos($videos)
     {
         $em = $this->getEntityManager();
-        $repo = $em->getRepository('tracks');
+        $repo = $em->getRepository($this->getContenttype());
 
         foreach ($videos->items as $video) {
             $videoData = $video->snippet;
@@ -85,18 +76,21 @@ class YouTube
             $thumbnailName = preg_replace('/[\s\W]+/', '', $thumbnailName);
             $this->fetchThumbnail($thumbnail, $thumbnailName);
 
-            $content = $repo->create(['contenttype' => 'tracks', 'status' => 'draft']);
+            $content = $repo->create([
+                'contenttype' => $this->getContenttype(),
+                'status' => 'draft'
+            ]);
             $data = [
-                "title" => $title,
-                "youtubeid" => $videoId,
-                'image' => $this->getUploadPath() . $thumbnailName . '.jpg'
+                $this->getMappedKey("title") => $title,
+                $this->getMappedKey("youtubeid") => $videoId,
+                $this->getMappedKey('image') => $this->getUploadPath() . $thumbnailName . '.jpg'
             ];
 
             foreach ($data as $key => $value) {
                 //dump([$key => $value]);
                 $content->set($key, empty($value) ? null : $value);
             }
-
+            
             $em->save($content);
         }
     }
@@ -106,9 +100,19 @@ class YouTube
         return $this->app['storage'];
     }
 
+    protected function getContenttype()
+    {
+        return $this->config['contenttype'];
+    }
+
+    protected function getMappedKey($key)
+    {
+        return $this->config['mapping'][$key];
+    }
+
     protected function getUploadPath()
     {
-        return $this->uploadPath;
+        return $this->config['uploadPath'];
     }
 
     protected function getClient()
