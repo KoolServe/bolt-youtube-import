@@ -2,6 +2,7 @@
 
 namespace Bolt\Extension\Koolserve\YouTubeImport\Nut;
 
+use Bolt\Extension\Koolserve\YouTubeImport\YouTube;
 use Silex\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,66 +39,13 @@ class Import extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $em = $this->app['storage'];
-        $repo = $em->getRepository('tracks');
-
-        //Delete the first record. Useful when testing
-        // $find = $repo->findOneBy(['id' => 1]);
-        // if ($find) {
-        //     $result = $repo->delete($find);
-        // }
-
-        $key = $this->config['youtubeKey'];
-        $playlistId = $this->config['playlistId'];
-        $url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&key=$key";
-
-        $uploadFolder = 'tracks/';
-        $uploadPath = $this->app['paths']["filespath"] . '/' . $uploadFolder;
-
-        $client = new \GuzzleHttp\Client();
-        $request = $client->request('GET', $url);
-        $data = json_decode($request->getBody() . '');
-
-        foreach ($data->items as $video) {
-            $videoData = $video->snippet;
-            $title = $videoData->title;
-            $videoId = $videoData->resourceId->videoId;
-
-            //Check that there isn't already a record for this video
-            $find = $repo->findOneBy(['youtubeid' => $videoId]);
-            if ($find) {
-                continue;
-            }
-
-            //Get the highest quality thumbnail possible
-            $thumbnails = $videoData->thumbnails;
-            foreach (['maxres', 'standard', 'high', 'medium', 'default'] as $quality) {
-                if (@$thumbnails->$quality) {
-                    $thumbnail = $thumbnails->$quality->url;
-                    break;
-                }
-            }
-
-            $thumbnailName = strtolower(str_replace(' ', '_', trim($title)));
-            $thumbnailName = preg_replace('/[\s\W]+/', '', $thumbnailName);
-
-            //Save thumbnail
-            $client = new \GuzzleHttp\Client();
-            $request = $client->request('GET', $thumbnail, ['sink' => $uploadPath . $thumbnailName . '.jpg']);
-            $content = $repo->create(['contenttype' => 'tracks', 'status' => 'draft']);
-            $data = [
-                "title" => $title,
-                "youtubeid" => $videoId,
-                'image' => $uploadFolder . $thumbnailName . '.jpg'
-            ];
-
-            foreach ($data as $key => $value) {
-                //dump([$key => $value]);
-                $content->set($key, empty($value) ? null : $value);
-            }
-
-            $em->save($content);
-            $output->writeln('Imported "' . $title . '"');
+        $import = new YouTube($this->app, $this->config);
+        try {
+            $import->run();
+        } catch (\Exception $e) {
+            $trace = $e->getTrace();
+            dump($trace[0]['file']);
+            dump($trace[0]['line']);
         }
     }
 }
