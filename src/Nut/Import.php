@@ -43,7 +43,7 @@ class Import extends Command
 
         //Delete the first record. Useful when testing
         // $find = $repo->findOneBy(['id' => 1]);
-        // if($find) {
+        // if ($find) {
         //     $result = $repo->delete($find);
         // }
 
@@ -65,13 +65,19 @@ class Import extends Command
             $thumbnail = $videoData->thumbnails->standard->url;
             $thumbnailName = strtolower(str_replace(' ', '_', trim($title)));
 
+            //Check that there isn't already a record for this video
+            $find = $repo->findOneBy(['youtubeid' => $videoId]);
+            if ($find) {
+                continue;
+            }
+
             //Save thumbnail
             $client = new \GuzzleHttp\Client();
             $request = $client->request('GET', $thumbnail, ['sink' => $uploadPath . $thumbnailName . '.jpg']);
             $content = $repo->create(['contenttype' => 'tracks', 'status' => 'draft']);
             $data = [
                 "title" => $title,
-                "youtubelink" => 'https://youtu.be/' . $videoId,
+                "youtubeid" => $videoId,
                 'image' => $uploadFolder . $thumbnailName . '.jpg'
             ];
 
