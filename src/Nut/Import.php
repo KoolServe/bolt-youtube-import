@@ -62,14 +62,24 @@ class Import extends Command
             $videoData = $video->snippet;
             $title = $videoData->title;
             $videoId = $videoData->resourceId->videoId;
-            $thumbnail = $videoData->thumbnails->standard->url;
-            $thumbnailName = strtolower(str_replace(' ', '_', trim($title)));
 
             //Check that there isn't already a record for this video
             $find = $repo->findOneBy(['youtubeid' => $videoId]);
             if ($find) {
                 continue;
             }
+
+            //Get the highest quality thumbnail possible
+            $thumbnails = $videoData->thumbnails;
+            foreach (['maxres', 'standard', 'high', 'medium', 'default'] as $quality) {
+                if (@$thumbnails->$quality) {
+                    $thumbnail = $thumbnails->$quality->url;
+                    break;
+                }
+            }
+
+            $thumbnailName = strtolower(str_replace(' ', '_', trim($title)));
+            $thumbnailName = preg_replace('/[\s\W]+/', '', $thumbnailName);
 
             //Save thumbnail
             $client = new \GuzzleHttp\Client();
