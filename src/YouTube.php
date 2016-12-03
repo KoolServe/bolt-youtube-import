@@ -36,7 +36,7 @@ class YouTube
             }
         }
 
-        $this->processVideos($videos);
+        $this->processVideos($items);
     }
 
     protected function fetchVideos($pageToken = '')
