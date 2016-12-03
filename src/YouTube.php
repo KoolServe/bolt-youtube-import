@@ -23,14 +23,28 @@ class YouTube
     public function run()
     {
         $videos = $this->fetchVideos();
+        $items = $videos->items;
+        $total = $videos->pageInfo->totalResults;
+
+        //If there are more videos to load then get them
+        if ($videos->pageInfo->totalResults > count($items)) {
+            $total = $videos->pageInfo->totalResults;
+            while ($total > count($items)) {
+                $videos = $this->fetchVideos($videos->nextPageToken);
+                $items = array_merge($items, $videos->items);
+                $total = $videos->pageInfo->totalResults;
+            }
+        }
+
         $this->processVideos($videos);
     }
 
-    protected function fetchVideos()
+    protected function fetchVideos($pageToken = '')
     {
         $key = $this->config['youtubeKey'];
         $playlistId = $this->config['playlistId'];
-        $url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&key=$key";
+        $url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&key=$key&pageToken=$pageToken";
+        dump($url);
 
         $client = $this->getClient();
         $request = $client->request('GET', $url);
@@ -52,7 +66,7 @@ class YouTube
         $em = $this->getEntityManager();
         $repo = $em->getRepository($this->getContenttype());
 
-        foreach ($videos->items as $video) {
+        foreach ($videos as $video) {
             $videoData = $video->snippet;
             $title = $videoData->title;
             $videoId = $videoData->resourceId->videoId;
