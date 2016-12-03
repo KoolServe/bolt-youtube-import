@@ -1,8 +1,10 @@
 {
     "name": "koolserve/youtube-import",
-    "description": "",
+    "description": "Import YouTube videos into Bolt",
     "type": "bolt-extension",
     "keywords": [
+        "YouTube"
+        "Import"
     ],
     "require": {
         "bolt/bolt": "^3.2"
