@@ -8,7 +8,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Import extends Command
+class Reset extends Command
 {
     private $app;
 
@@ -29,14 +29,22 @@ class Import extends Command
 
     protected function configure()
     {
-        $this->setName('youtube:import')
-            ->setDescription('Description of the command')
+        $this->setName('youtube:reset')
+            ->setDescription('Delete all of the records for the track contenttype')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $import = new YouTube($this->app, $this->config);
-        $import->run();
+        $em = $this->app['storage'];
+        $repo = $em->getRepository('tracks');
+
+        $find = $repo->findAll();
+        if($find) {
+            foreach ($find as $f){
+                $repo->delete($f);
+            }
+        }
+
     }
 }

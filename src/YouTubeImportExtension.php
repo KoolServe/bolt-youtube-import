@@ -34,6 +34,7 @@ class YouTubeImportExtension extends SimpleExtension
 
         return [
             new Nut\Import($container, $config),
+            new Nut\Reset($container, $config),
         ];
     }
 }
