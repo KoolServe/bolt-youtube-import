@@ -96,6 +96,8 @@ class YouTube
                 'contenttype' => $this->getContenttype(),
                 'status' => 'draft',
             ]);
+            $content->setOwnerid($this->config['userid']);
+
             $data = [
                 $this->getMappedKey('title') => $title,
                 $this->getMappedKey('youtubeid') => $videoId,

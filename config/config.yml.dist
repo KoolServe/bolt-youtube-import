@@ -19,3 +19,6 @@ contenttype: ''
 #     title: title
 #     youtubeid: youtubeid
 #     image: image
+#
+# Set the owner of the new entry being created
+# userid: 1
