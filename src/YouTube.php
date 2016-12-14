@@ -24,15 +24,15 @@ class YouTube
     {
         $videos = $this->fetchVideos();
         $items = $videos->items;
-        $total = $videos->pageInfo->totalResults;
+        $configMax = ($this->config['pages'] * 50);
+        $max = min($videos->pageInfo->totalResults, $configMax);
 
         //If there are more videos to load then get them
-        if ($videos->pageInfo->totalResults > count($items)) {
+        if ($max > count($items)) {
             $total = $videos->pageInfo->totalResults;
-            while ($total > count($items)) {
+            while ($max > count($items)) {
                 $videos = $this->fetchVideos($videos->nextPageToken);
                 $items = array_merge($items, $videos->items);
-                $total = $videos->pageInfo->totalResults;
             }
         }
 
@@ -44,7 +44,6 @@ class YouTube
         $key = $this->config['youtubeKey'];
         $playlistId = $this->config['playlistId'];
         $url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=$playlistId&key=$key&pageToken=$pageToken";
-        dump($url);
 
         $client = $this->getClient();
         $request = $client->request('GET', $url);
@@ -65,6 +64,7 @@ class YouTube
     {
         $em = $this->getEntityManager();
         $repo = $em->getRepository($this->getContenttype());
+        $imported = 0;
 
         foreach ($videos as $video) {
             $videoData = $video->snippet;
@@ -109,9 +109,15 @@ class YouTube
                 $content->set($key, empty($value) ? null : $value);
             }
 
-            //Save that record
+            //Save this new record
             $em->save($content);
+            echo "Imported " . $title . "\n";
+            $imported++;
         }
+
+        echo "Imported " . $imported . " records \n";
+
+        return $imported;
     }
 
     protected function getEntityManager()

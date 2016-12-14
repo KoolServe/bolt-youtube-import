@@ -22,3 +22,6 @@ contenttype: ''
 #
 # Set the owner of the new entry being created
 # userid: 1
+#
+# How many pages of vidoes to fetch? One page has a maximum of 50 videos
+# pages: 1
