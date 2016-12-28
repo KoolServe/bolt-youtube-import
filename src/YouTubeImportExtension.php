@@ -23,6 +23,7 @@ class YouTubeImportExtension extends SimpleExtension
                 'youtubeid' => 'youtubeid',
                 'image' => 'image',
             ],
+            'normalize' => true,
             'uploadPath' => 'tracks/',
             'userid' => 1,
             'pages' => 1

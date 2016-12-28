@@ -36,3 +36,6 @@ exclude:
 #
 # Should double spaces also be removed before importing?
 # doublespaces: true
+#
+# Convert titles into a normal version. Example 'YoTuBE vidEO' would become 'Youttube Video'
+# normalize: true

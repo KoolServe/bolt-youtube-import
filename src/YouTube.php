@@ -129,6 +129,13 @@ class YouTube
             $newTitle = str_replace('  ', ' ', $newTitle);
         }
 
+        if ($this->config['normalize']) {
+            $newTitle = utf8_decode($newTitle);
+            $newTitle = ucwords(strtolower($newTitle));
+            $newTitle = utf8_encode($newTitle);
+
+        }
+
         return $newTitle;
     }
 
