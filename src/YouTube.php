@@ -68,7 +68,7 @@ class YouTube
 
         foreach ($videos as $video) {
             $videoData = $video->snippet;
-            $title = $videoData->title;
+            $title = $this->fixTitle($videoData->title);
             $videoId = $videoData->resourceId->videoId;
 
             //Check that there isn't already a record for this video
@@ -118,6 +118,18 @@ class YouTube
         echo "Imported " . $imported . " records \n";
 
         return $imported;
+    }
+
+    protected function fixTitle($title)
+    {
+        $newTitle = str_replace($this->config['exclude'], '', $title);
+
+        //Check to remove double spaces
+        if ($this->config['doublespaces']) {
+            $newTitle = str_replace('  ', ' ', $newTitle);
+        }
+
+        return $newTitle;
     }
 
     protected function getEntityManager()

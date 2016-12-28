@@ -17,6 +17,7 @@ class YouTubeImportExtension extends SimpleExtension
     protected function getDefaultConfig()
     {
         return [
+            'doublespaces' => true,
             'mapping' => [
                 'title' => 'title',
                 'youtubeid' => 'youtubeid',

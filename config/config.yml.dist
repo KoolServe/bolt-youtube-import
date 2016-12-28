@@ -7,6 +7,14 @@ playlistId: ''
 # Contenttype to import the videos to
 contenttype: ''
 
+# Text to remove from the titles. Make sure they are within quotation marks
+exclude:
+    - "Official Video"
+    - "Music Video"
+    - "()"
+    - "[]"
+    - "(Audio)"
+
 ###
 # Default settings
 ###
@@ -25,3 +33,6 @@ contenttype: ''
 #
 # How many pages of vidoes to fetch? One page has a maximum of 50 videos
 # pages: 1
+#
+# Should double spaces also be removed before importing?
+# doublespaces: true
