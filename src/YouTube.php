@@ -7,6 +7,7 @@
 namespace Bolt\Extension\Koolserve\YouTubeImport;
 
 use Bolt\Application;
+use Symfony\Component\Debug\Exception\ContextErrorException;
 
 class YouTube
 {
@@ -104,6 +105,8 @@ class YouTube
                 $this->getMappedKey('image') => $this->getUploadPath().$thumbnailName.'.jpg',
             ];
 
+            $data = $this->checkExtraMapping($data);
+
             foreach ($data as $key => $value) {
                 //dump([$key => $value]);
                 $content->set($key, empty($value) ? null : $value);
@@ -120,7 +123,7 @@ class YouTube
         return $imported;
     }
 
-    protected function fixTitle($title)
+    private function fixTitle($title)
     {
         $newTitle = str_replace($this->config['exclude'], '', $title);
 
@@ -139,6 +142,23 @@ class YouTube
         return $newTitle;
     }
 
+    private function checkExtraMapping($data)
+    {
+        if (!$this->getMappedKey('artist') && !$this->getMappedKey('track')) {
+            return $data;
+        }
+
+        $title = $data[$this->getMappedKey('title')];
+
+        $explode = explode(' - ', $title);
+        if (count($explode) == 2) {
+            $data[$this->getMappedKey('artist')] = $explode[0];
+            $data[$this->getMappedKey('track')] = $explode[1];
+        }
+
+        return $data;
+    }
+
     protected function getEntityManager()
     {
         return $this->app['storage'];
@@ -151,7 +171,13 @@ class YouTube
 
     protected function getMappedKey($key)
     {
-        return $this->config['mapping'][$key];
+        try {
+            $value = $this->config['mapping'][$key];
+        } catch (ContextErrorException $e) {
+            $value = false;
+        }
+
+        return $value;
     }
 
     protected function getUploadPath()
